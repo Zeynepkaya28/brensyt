@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#f7efe2"/>
+  <circle cx="150" cy="170" r="58" fill="#a9713c"/><circle cx="150" cy="170" r="30" fill="#e8c39a"/>
+  <circle cx="362" cy="170" r="58" fill="#a9713c"/><circle cx="362" cy="170" r="30" fill="#e8c39a"/>
+  <circle cx="256" cy="270" r="150" fill="#b47a42"/>
+  <ellipse cx="256" cy="320" rx="70" ry="52" fill="#f0d3ae"/>
+  <ellipse cx="256" cy="296" rx="25" ry="18" fill="#3b2a1e"/>
+  <path d="M222 326 Q256 360 290 326" fill="none" stroke="#3b2a1e" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="200" cy="250" r="24" fill="#fff"/><circle cx="312" cy="250" r="24" fill="#fff"/>
+  <circle cx="202" cy="253" r="13" fill="#2a1c12"/><circle cx="314" cy="253" r="13" fill="#2a1c12"/>
+  <path d="M106 172 Q122 66 278 72 Q434 82 412 178 Q256 122 106 172Z" fill="#5b3a1e"/>
+  <path d="M290 74 q10 -30 26 -22" fill="none" stroke="#442a14" stroke-width="11" stroke-linecap="round"/>
+  <path d="M130 398 Q256 462 382 398 L390 440 Q256 500 122 440Z" fill="#d62828"/>
+</svg>
