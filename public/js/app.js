@@ -5,7 +5,7 @@ import * as auth from "./core/auth.js";
 import * as store from "./core/store.js";
 import { pop } from "./core/audio.js";
 import { LANGS, LANG_LIST } from "./langs/index.js";
-import { renderLogin } from "./views/login.js";
+import { renderLogin, renderRecovery } from "./views/login.js";
 import { renderToday } from "./views/today.js";
 import { renderCards } from "./views/cards.js";
 import { renderChat } from "./views/chat.js";
@@ -79,6 +79,15 @@ function loading(text = "Brensyt yola çıktı…", ms = 1700) {
 function clear() {
   if (cleanup) { try { cleanup(); } catch { /* yok say */ } cleanup = null; }
   put(app, );
+}
+
+function showRecovery() {
+  clear();
+  renderRecovery(app, async () => {
+    history.replaceState(null, "", location.pathname + "#today");
+    await loading("Defterin hazırlanıyor…");
+    enter();
+  });
 }
 
 function showLogin() {
@@ -171,4 +180,4 @@ if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").cat
 
 await loading();
 user = await auth.restore();
-if (user) enter(); else showLogin();
+if (user && auth.isRecovery()) showRecovery(); else if (user) enter(); else showLogin();

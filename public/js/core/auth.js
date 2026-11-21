@@ -24,6 +24,12 @@ function sameText(a, b) {
   return diff === 0;
 }
 
+// E-postadaki sıfırlama bağlantısından gelindiyse adres çubuğunda type=recovery olur (sayfa açılırken bir kez okunur).
+const cameFromRecovery = /type=recovery/.test(location.hash);
+const linkProblem = /error_code=otp_expired|error=access_denied/.test(location.hash);
+export const isRecovery = () => cameFromRecovery;
+export const linkExpired = () => linkProblem;
+
 const cleanEmail = (e) => String(e).trim().toLowerCase();
 const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e) && e.length <= 254;
 const strongEnough = (p) => p.length >= 8 && /\p{L}/u.test(p) && /\d/.test(p);
@@ -61,6 +67,9 @@ function cloudError(err) {
   if (/not confirmed/i.test(m)) return new Error("E-postanı henüz doğrulamadın. Gelen kutundaki bağlantıya tıkla, sonra giriş yap.");
   if (/already registered|already been registered/i.test(m)) return new Error("Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.");
   if (/rate limit|too many/i.test(m)) return new Error("Çok fazla deneme yapıldı. Biraz bekleyip tekrar dene.");
+  if (/only request this after|security purposes/i.test(m)) return new Error("Çok sık istedin. Bir dakika bekleyip tekrar dene.");
+  if (/same.*password|different from the old/i.test(m)) return new Error("Yeni şifre eskisinden farklı olmalı.");
+  if (/session.*missing|not authenticated/i.test(m)) return new Error("Bağlantının süresi dolmuş. “Şifremi unuttum” ile yenisini iste.");
   if (/invalid.*email|email.*invalid/i.test(m)) return new Error("Geçerli bir e-posta adresi gir.");
   return new Error("İşlem tamamlanamadı. Bağlantını kontrol edip tekrar dene.");
 }
@@ -113,6 +122,23 @@ export async function login(emailRaw, password) {
   u.lockUntil = 0;
   putUsers(all);
   return startSession(email, u.name);
+}
+
+// Şifre sıfırlama: kayıtlı adrese bağlantı gönderir. Adres kayıtlı olsa da olmasa da aynı cevap verilir.
+export async function sendReset(emailRaw) {
+  const email = cleanEmail(emailRaw);
+  if (!validEmail(email)) throw new Error("Geçerli bir e-posta adresi gir.");
+  if (!cloudEnabled()) throw new Error("Bu cihazdaki yerel hesaplarda e-posta ile sıfırlama yok. Yeni bir hesap açabilirsin.");
+  const { error } = await (await client()).auth.resetPasswordForEmail(email, { redirectTo: location.origin });
+  if (error) throw cloudError(error);
+  return "Bu adres kayıtlıysa şifre sıfırlama bağlantısı gönderdik. Gelen kutunu ve gereksiz (spam) kutusunu kontrol et.";
+}
+
+// Sıfırlama bağlantısıyla gelen oturumda yeni şifreyi kaydeder.
+export async function setNewPassword(password) {
+  if (!strongEnough(password)) throw new Error("Şifre en az 8 karakter olmalı; harf ve rakam içermeli.");
+  const { error } = await (await client()).auth.updateUser({ password });
+  if (error) throw cloudError(error);
 }
 
 // Google ile giriş (Supabase). Önce panelde Google sağlayıcısı açılmalı ve config.js'te googleLogin: true yapılmalı.
